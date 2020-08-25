@@ -13,7 +13,7 @@ const char *argp_program_version =
 const char *argp_program_bug_address =
   "<henrytsang222@gmail.com>";
   
-/* TODO Program documentation. */
+/* Program documentation. */
 static char doc[] =
   "CT model solver using CPA";
   
@@ -28,6 +28,9 @@ static struct argp_option options[] = {
   {"U",    'U', "Value",      0,  "Interaction Strength" },
   {"V",    'V', "Value",      0,  "c-f hopping" },
   {"mu",    'u', "Value",      0,  "chemical potential" },
+  {"ef",    'e', "Value",      0,  "CT gap" },
+  {"iterations",    'i', "COUNT",      0,  "Number of DMFT iterations" },
+  {"omegamax",    'm', "Value",      0,  "Cutoff frequency" },
   { 0 }
 };
 
@@ -36,8 +39,8 @@ static struct argp_option options[] = {
 struct arguments
 {
   char **args;
-  int silent, verbose;
-  double U,V,mu;
+  int silent, verbose,max_iter,N;
+  double U,V,mu,ef,omega_max;
 };
 
 /* Parse a single option. */
@@ -65,6 +68,18 @@ parse_opt (int key, char *arg, struct argp_state *state)
       break;
     case 'u':
       arguments->mu = arg ? atof(arg) : 0.0;
+      break;
+    case 'e':
+      arguments->ef = arg ? atof(arg) : -1.0;
+      break;
+    case 'i':
+      arguments->max_iter = arg ? atoi(arg) : 10;
+      break;
+    case 'N':
+      arguments->N = arg ? atoi(arg) : 1000;
+      break;
+    case 'm':
+      arguments->omega_max = arg ? atof(arg) : 6.0;
       break;
 		
     case ARGP_KEY_ARG:
@@ -96,6 +111,10 @@ int main(int argc, char* argv[])
   arguments.silent = 0;
   arguments.verbose = 0;
   arguments.U = 2.0;
+  arguments.V = 0.2;
+  arguments.max_iter = 100;
+  arguments.N = 2000;
+  arguments.omega_max = 6.0;
 
 	size_t count=0;
 	while(argv[++count]);
@@ -109,23 +128,23 @@ int main(int argc, char* argv[])
 	int verbose = arguments.verbose;
 	int quiet = arguments.silent;
 	
-	size_t N = 2000;
-	size_t maxit = 1000;
+	size_t N = arguments.N;
+	size_t maxit = arguments.max_iter;
 	double U=arguments.U;
 	
-	double V=0.217;
+	double V=arguments.V;
 	double mu=arguments.mu;
-	double ef = -1.0;
-	double ef1 = -1.0;
+	double ef = arguments.ef;
+	double ef1 = ef;
 	double ef2 = ef1+U;
 	
-	if (!quiet) printf("U=%.02f V=%.02f mu=%.02f\n",U,V,mu);
+	if (!quiet) printf("max_iter=%lu N=%lu omega_max=%.02f\nU=%.02f V=%.02f mu=%.02f ef=%.02f\n",maxit,N,arguments.omega_max,U,V,mu,ef);
 	
 	//Read in number of t
 	vector<double> ts;
 	for (int i=0;i<count-1;++i) if(arguments.args[i]!=NULL) ts.push_back(atof(arguments.args[i]));
 	
-	for (auto & t:ts) {printf("Work on ");printf("%f ",t);printf("\n");}
+	for (auto & t:ts) {printf("Work on ");printf("%.02f ",t);printf("\n");}
 	
 	for (auto & t:ts){
 	
@@ -134,7 +153,7 @@ int main(int argc, char* argv[])
 		if (!quiet) printf("Start CPA for t = %f\n",t);
 		
 		//Init grid
-		double omega_max = 6.0;
+		double omega_max = arguments.omega_max;
 		double domega = 2.0*omega_max/((double) N-1.0);
 		vector<double> omega;
 		for (int i=0;i<N;i++) omega.push_back(-omega_max+domega*i);
