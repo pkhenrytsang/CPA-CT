@@ -125,20 +125,20 @@ int main(int argc, char* argv[])
   
 	using namespace std;
 	
-	int verbose = arguments.verbose;
-	int quiet = arguments.silent;
+	const int verbose = arguments.verbose;
+	const int quiet = arguments.silent;
 	
-	size_t N = arguments.N;
-	size_t maxit = arguments.max_iter;
-	double U=arguments.U;
+	const size_t N = arguments.N;
+	const size_t maxit = arguments.max_iter;
 	
-	double V=arguments.V;
-	double mu=arguments.mu;
-	double ef = arguments.ef;
-	double ef1 = ef;
-	double ef2 = ef1+U;
+	const double U=arguments.U;
+	const double V=arguments.V;
+	const double mu=arguments.mu;
+	const double ef = arguments.ef;
+	const double ef1 = ef;
+	const double ef2 = ef1+U;
 	
-	if (!quiet) printf("max_iter=%lu N=%lu omega_max=%.02f\nU=%.02f V=%.02f mu=%.02f ef=%.02f\n",maxit,N,arguments.omega_max,U,V,mu,ef);
+	if (!quiet) printf("max_iter=%lu N=%lu omega_max=%.02f\nU=%.02f V=%.02f mu=%.02f ef=%.02f\nef1=%.02f ef2=%.02f\n",maxit,N,arguments.omega_max,U,V,mu,ef,ef1,ef2);
 	
 	//Read in number of t
 	vector<double> ts;
@@ -160,7 +160,7 @@ int main(int argc, char* argv[])
 		
 		//Initial Gc
 		vector<complex<double>> Gc;
-		for (size_t i=0;i<N;i++) Gc.push_back(complex<double>(0.0,-1.0));
+		for (size_t i=0;i<N;i++) Gc.push_back(complex<double>(0.1,-1.0));
 		
 		//Compute Deltac
 		vector<complex<double>> Deltac;
@@ -188,7 +188,7 @@ int main(int argc, char* argv[])
 			
 			//Compute Phi
 			vector<complex<double>> Phi;
-			for (size_t i=0;i<N;i++) Phi.push_back(sqr(V)/(omega[i]+mu-Sigma[i]));
+			for (size_t i=0;i<N;i++) Phi.push_back(sqr(V)/(omega[i]+mu-ef-Sigma[i]));
 			
 			//Compute new Gc
 			for (size_t i=0;i<N;i++) Gc[i] = 1.0/(omega[i]+mu-Deltac[i]-Phi[i]);
@@ -196,6 +196,7 @@ int main(int argc, char* argv[])
 			//Mixing
 			for (size_t i=0;i<N;i++) Deltac[i] = 0.5*sqr(t)*Gc[i]+0.5*Deltac[i];
 			
+			for (size_t i=0;i<N;i++) Gf[i] = 1.0/(omega[i]+mu-ef-Deltaf[i]-Sigma[i]);
 			
 			if (iter==maxit-1){//Final iteration
 				if (!quiet and verbose) printf("printing results to file\n");
