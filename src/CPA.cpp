@@ -112,6 +112,7 @@ int main(int argc, char* argv[])
   arguments.verbose = 0;
   arguments.U = 2.0;
   arguments.V = 0.2;
+  arguments.mu = 0.0;
   arguments.max_iter = 100;
   arguments.N = 2000;
   arguments.omega_max = 6.0;
