@@ -144,7 +144,7 @@ int main(int argc, char* argv[])
 	vector<double> ts;
 	for (size_t i=0;i<count-1;++i) if(arguments.args[i]!=NULL) ts.push_back(atof(arguments.args[i]));
 	
-	for (auto & t:ts) {printf("Work on ");printf("%.02f ",t);printf("\n");}
+	for (auto & t:ts) {printf("Work on t = ");printf("%.02f ",t);printf("\n");}
 	
 	for (auto & t:ts){
 	
