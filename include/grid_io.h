@@ -16,7 +16,7 @@ namespace grid_io {
 			char buff[100]; 
 			snprintf(buff, sizeof(buff), "-- ERROR -- Failed to open file %s : ",FN.c_str()); 
 			perror(buff); };
-		for (int i=0;i<N;i++){
+		for (size_t i=0;i<N;i++){
 			fprintf(file,"%f %f %f\n",omega[i],real(F[i]),imag(F[i]));
 		}
 		fclose(file);
@@ -33,7 +33,7 @@ namespace grid_io {
 			char buff[100]; 
 			snprintf(buff, sizeof(buff), "-- ERROR -- Failed to open file %s : ",FN.c_str()); 
 			perror(buff); };
-		for (int i=0;i<N;i++){
+		for (size_t i=0;i<N;i++){
 			fprintf(file,"%f %f\n",X[i],Y[i]);
 		}
 		fclose(file);

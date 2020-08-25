@@ -1,13 +1,15 @@
-CXX = icpc
+CXX = g++
 
 SP = src
 
 prog = CPA
 
+flags = -Wall -O3
+
 includes = -Iinclude
 
 all : $(SP)/CPA.cpp
-	$(CXX) -o $(prog) $(SP)/CPA.cpp $(includes)
+	$(CXX) $(flags) -o $(prog) $(SP)/CPA.cpp $(includes)
 	
 	
 # clean all files

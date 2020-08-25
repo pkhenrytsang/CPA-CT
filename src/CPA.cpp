@@ -142,7 +142,7 @@ int main(int argc, char* argv[])
 	
 	//Read in number of t
 	vector<double> ts;
-	for (int i=0;i<count-1;++i) if(arguments.args[i]!=NULL) ts.push_back(atof(arguments.args[i]));
+	for (size_t i=0;i<count-1;++i) if(arguments.args[i]!=NULL) ts.push_back(atof(arguments.args[i]));
 	
 	for (auto & t:ts) {printf("Work on ");printf("%.02f ",t);printf("\n");}
 	
@@ -156,52 +156,52 @@ int main(int argc, char* argv[])
 		double omega_max = arguments.omega_max;
 		double domega = 2.0*omega_max/((double) N-1.0);
 		vector<double> omega;
-		for (int i=0;i<N;i++) omega.push_back(-omega_max+domega*i);
+		for (size_t i=0;i<N;i++) omega.push_back(-omega_max+domega*i);
 		
 		//Initial Gc
 		vector<complex<double>> Gc;
-		for (int i=0;i<N;i++) Gc.push_back(complex<double>(0.0,-1.0));
+		for (size_t i=0;i<N;i++) Gc.push_back(complex<double>(0.0,-1.0));
 		
 		//Compute Deltac
 		vector<complex<double>> Deltac;
-		for (int i=0;i<N;i++) Deltac.push_back(sqr(t)*Gc[i]);
+		for (size_t i=0;i<N;i++) Deltac.push_back(sqr(t)*Gc[i]);
 		
 		while (iter<maxit){
 		
-			if (!quiet and verbose) printf("CPA: iter %d\n",iter);
+			if (!quiet and verbose) printf("CPA: iter %lu\n",iter);
 			
 			//Compute Deltaf
 			vector<complex<double>> Deltaf;
-			for (int i=0;i<N;i++) Deltaf.push_back(sqr(V)/(omega[i]+mu-Deltac[i]));
+			for (size_t i=0;i<N;i++) Deltaf.push_back(sqr(V)/(omega[i]+mu-Deltac[i]));
 			 
 			//Compute Gf from Gc
 			vector<complex<double>> Gf;
-			for (int i=0;i<N;i++){
-				const complex<double> Gf1 = 1/(omega[i]+mu-ef1-Deltaf[i]);
-				const complex<double> Gf2 = 1/(omega[i]+mu-ef2-Deltaf[i]);
+			for (size_t i=0;i<N;i++){
+				const complex<double> Gf1 = 1.0/(omega[i]+mu-ef1-Deltaf[i]);
+				const complex<double> Gf2 = 1.0/(omega[i]+mu-ef2-Deltaf[i]);
 				Gf.push_back(0.5*Gf1+0.5*Gf2);
 			}
 			
 			//Now compute self energy Sigma
 			vector<complex<double>> Sigma;
-			for (int i=0;i<N;i++) Sigma.push_back(omega[i]+mu-ef-Deltaf[i]-1/Gf[i]);
+			for (size_t i=0;i<N;i++) Sigma.push_back(omega[i]+mu-ef-Deltaf[i]-1.0/Gf[i]);
 			
 			//Compute Phi
 			vector<complex<double>> Phi;
-			for (int i=0;i<N;i++) Phi.push_back(sqr(V)/(omega[i]+mu-Sigma[i]));
+			for (size_t i=0;i<N;i++) Phi.push_back(sqr(V)/(omega[i]+mu-Sigma[i]));
 			
 			//Compute new Gc
-			for (int i=0;i<N;i++) Gc[i] = 1/(omega[i]+mu-Deltac[i]-Phi[i]);
+			for (size_t i=0;i<N;i++) Gc[i] = 1.0/(omega[i]+mu-Deltac[i]-Phi[i]);
 			
 			//Mixing
-			for (int i=0;i<N;i++) Deltac[i] = 0.5*sqr(t)*Gc[i]+0.5*Deltac[i];
+			for (size_t i=0;i<N;i++) Deltac[i] = 0.5*sqr(t)*Gc[i]+0.5*Deltac[i];
 			
 			
 			if (iter==maxit-1){//Final iteration
 				if (!quiet and verbose) printf("printing results to file\n");
 				//Compute dos
 				vector<double> dos;
-				for (int i=0;i<N;i++) dos.push_back(-imag(Gf[i]+Gc[i])/M_PI);
+				for (size_t i=0;i<N;i++) dos.push_back(-imag(Gf[i]+Gc[i])/M_PI);
 				
 				char buffer [100];
 				snprintf ( buffer, 100, "V.%.02f.U.%.02f.t.%.02f",V,U, t );
