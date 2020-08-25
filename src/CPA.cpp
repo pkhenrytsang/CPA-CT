@@ -29,7 +29,9 @@ static struct argp_option options[] = {
   {"V",    'V', "Value",      0,  "c-f hopping" },
   {"mu",    'u', "Value",      0,  "chemical potential" },
   {"ef",    'e', "Value",      0,  "CT gap" },
+  {"eta",    'n', "Value",      0,  "broadening eta" },
   {"iterations",    'i', "COUNT",      0,  "Number of DMFT iterations" },
+  {"N",    'N', "COUNT",      0,  "Number of omega points" },
   {"omegamax",    'm', "Value",      0,  "Cutoff frequency" },
   { 0 }
 };
@@ -40,7 +42,7 @@ struct arguments
 {
   char **args;
   int silent, verbose,max_iter,N;
-  double U,V,mu,ef,omega_max;
+  double U,V,mu,ef,omega_max,eta;
 };
 
 /* Parse a single option. */
@@ -81,6 +83,9 @@ parse_opt (int key, char *arg, struct argp_state *state)
     case 'm':
       arguments->omega_max = arg ? atof(arg) : 6.0;
       break;
+    case 'n':
+      arguments->eta = arg ? atof(arg) : 5e-2;
+      break;
 		
     case ARGP_KEY_ARG:
 
@@ -116,6 +121,7 @@ int main(int argc, char* argv[])
   arguments.max_iter = 100;
   arguments.N = 2000;
   arguments.omega_max = 6.0;
+  arguments.eta = 5e-2;
 
 	size_t count=0;
 	while(argv[++count]);
@@ -138,8 +144,10 @@ int main(int argc, char* argv[])
 	const double ef = arguments.ef;
 	const double ef1 = ef;
 	const double ef2 = ef1+U;
+	const double eta = arguments.eta;
+	const complex<double> ieta(0.0,eta);
 	
-	if (!quiet) printf("max_iter=%lu N=%lu omega_max=%.02f\nU=%.02f V=%.02f mu=%.02f ef=%.02f\nef1=%.02f ef2=%.02f\n",maxit,N,arguments.omega_max,U,V,mu,ef,ef1,ef2);
+	if (!quiet) printf("max_iter=%lu N=%lu omega_max=%.02f\nU=%.02f V=%.02f mu=%.02f ef=%.02f eta=%.02e\nef1=%.02f ef2=%.02f\n",maxit,N,arguments.omega_max,U,V,mu,ef,eta,ef1,ef2);
 	
 	//Read in number of t
 	vector<double> ts;
@@ -178,8 +186,8 @@ int main(int argc, char* argv[])
 			//Compute Gf from Gc
 			vector<complex<double>> Gf;
 			for (size_t i=0;i<N;i++){
-				const complex<double> Gf1 = 1.0/(omega[i]+mu-ef1-Deltaf[i]);
-				const complex<double> Gf2 = 1.0/(omega[i]+mu-ef2-Deltaf[i]);
+				const complex<double> Gf1 = 1.0/(omega[i]+mu-ef1-Deltaf[i]+ieta);
+				const complex<double> Gf2 = 1.0/(omega[i]+mu-ef2-Deltaf[i]+ieta);
 				Gf.push_back(0.5*Gf1+0.5*Gf2);
 			}
 			
